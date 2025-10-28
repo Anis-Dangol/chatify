@@ -10,12 +10,11 @@ const userSchema = mongoose.Schema(
     fullName: {
       type: String,
       required: true,
-      unique: true,
     },
     password: {
       type: String,
       required: true,
-      minLength: 6,
+      minlength: 6,
     },
     profilePic: {
       type: String,

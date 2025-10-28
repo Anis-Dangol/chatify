@@ -34,8 +34,14 @@ export const signup = async (req, res) => {
     });
 
     if (newUser) {
-      await newUser.save();
-      generateToken(newUser._id, res);
+      // before CR:
+      // await newUser.save();
+      // generateToken(newUser._id, res);
+
+      // After CR:
+      // Persist user first, then issue auth cookie
+      const savedUser = await newUser.save();
+      generateToken(savedUser._id, res);
 
       res.status(201).json({
         _id: newUser._id,
