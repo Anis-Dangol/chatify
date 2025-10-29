@@ -71,9 +71,37 @@ export const signup = async (req, res) => {
 };
 
 export const login = async (req, res) => {
-  res.send("login Endpoint");
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ message: "Email and password are required" });
+  }
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) return res.status(400).json({ message: "Invalid Credientials" });
+    // never tell the client which one is incorrect: password or email
+
+    const isPasswordCorrrect = await bcrypt.compare(password, user.password);
+    if (!isPasswordCorrrect)
+      return res.status(400).json({ message: "Invalid Credientials" });
+
+    generateToken(user._id, res);
+
+    res.status(200).json({
+      _id: user._id,
+      fullName: user.fullName,
+      email: user.email,
+      profilePic: user.profilePic,
+    });
+  } catch (error) {
+    console.error("Error in login controller:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 };
 
 export const logout = async (req, res) => {
-  res.send("logout Endpoint");
+  // clear the jwt cookie
+  res.cookie("jwt", "", { maxAge: 0 });
+  res.status(200).json({ message: "Logged out successfully" });
 };
